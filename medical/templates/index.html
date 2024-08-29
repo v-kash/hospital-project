@@ -1,0 +1,196 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'index_my_medical12.css' %}">
+
+    
+</head>
+<body>
+    <header>
+        <h1>API Documentation</h1>
+    </header>
+    <div class="container">
+
+
+    <div class="description section" >
+        <p><strong>To Hit below endpoints you have to go /medical/{endpoints}</strong></p>
+        <div class="note">Example: http://127.0.0.1:8000/medical/patients/ </div>
+
+        <p><strong> for testing routes Use Postman</strong></p>
+
+
+    </div>
+        <div class="description section">
+            <h2>/register</h2>
+            <p><strong>POST request</strong></p>
+            <div class="note">NOTE: Doctor's username is stored with a 'dr_' prefix.</div>
+            <p>Request JSON:</p>
+            <pre><code>
+{
+    "username": "patient_annaa",
+    "password": "password123",
+    "first_name": "Anne",
+    "last_name": "Taylor",
+    "user_type": "patient", // patient or doctor (in small)
+    "department": 6,
+    "assigned_doctor": 1  // Doctor with a same department
+}
+            </code></pre>
+            <p>For patient, <code>assigned_doctor</code> is optional. If assigning, ensure the doctor is in the same department.</p>
+            <p>For doctor, <code>assigned_doctor</code> can be excluded.</p>
+        </div>
+        
+        <div class="description section">
+            <h2>/login</h2>
+            <p><strong>POST request</strong></p>
+            <div class="note">NOTE: Accepts only Form Data. Use Postman form data with <code>username</code> and <code>password</code>.</div>
+        </div>
+        
+        <div class="description section">
+            <h2>/doctors</h2>
+            <p><strong>GET request</strong></p>
+            <div class="note">NOTE: Only doctors can access this route.</div>
+            <p>Returns all doctors with id and details.</p>
+        </div>
+        
+        <div class="description section">
+            <h2>/doctors/<code>pk</code></h2>
+            <p><strong>GET request</strong></p>
+            <div class="note">NOTE: Only doctors can access this route and here pk -> doctor's Pk .</div>
+            <p>Fetches details of the doctor with the given <code>pk</code>.</p>
+            <p><strong>PATCH request</strong></p>
+            <p>Doctors can only update their own details. Username and password cannot be empty strings. For first and last name, empty strings are allowed but will not update existing values.</p>
+            <pre><code>
+{
+    "user": {
+        "username": "dr_jane",
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "password": "newpassword"
+    },
+    "department": 6
+}
+            </code></pre>
+            <p><strong>DELETE request</strong></p>
+            <p>Doctors can only delete their own records.</p>
+        </div>
+        
+        <div class="description section">
+            <h2>/patients/</h2>
+            <p><strong>GET request</strong></p>
+            <div class="note">NOTE: Only doctors can access this route.</div>
+            <p>Returns all patients with id and details.</p>
+        </div>
+        
+        <div class="description section">
+            <h2>/patients/<code>pk</code></h2>
+            <div class="note">NOTE: pk -> will be patient primary key</div>
+            <p><strong>GET request</strong></p>
+            <p>Patients can get only their own records. Doctors can get only their assigned patients' records.</p>
+            <p><strong>PATCH request</strong></p>
+            <p>Doctors can update department and assigned doctor fields. Patients can update only their user data.</p>
+            <pre><code>
+{
+    "user": {
+        "first_name": "NewFirstName",
+        "last_name": "NewLastName"
+    },
+    "department": 7,
+    "assigned_doctor": 4
+}
+            </code></pre>
+            <p><strong>DELETE request</strong></p>
+            <p>Doctors can delete only their own patients. Patients can delete only their own records.</p>
+        </div>
+        
+        <div class="description section">
+            <h2>/patient_records</h2>
+            <p><strong>GET request</strong></p>
+            <div class="note">NOTE: Doctors can fetch records only of their own department.</div>
+            <p>Fetches all patient records for the doctor's department.</p>
+            <p><strong>POST request</strong></p>
+            <p>Creates a new record. The department field is automatically assigned based on the doctor's department.</p>
+            <pre><code>
+{
+    "patient": 25,
+    "diagnostics": "Hypertension",
+    "observations": "Patient shows signs of high blood pressure.",
+    "treatments": "Prescribed medication for hypertension.",
+    "misc": "Follow-up in 2 weeks."
+}
+            </code></pre>
+        </div>
+        
+        <div class="description section">
+            <h2>/patient_records/<code>pk</code></h2>
+            <div class="note">NOTE: pk -> will be patient primary key for all three requests</div>
+
+            <p><strong>GET request</strong></p>
+            <p>Doctors can get all records for the specific patient identified by <code>pk</code>, provided that:</p>
+            <ul>
+                <li>The patient is assigned to the doctor.</li>
+                <li>The records' department field matches the doctor's department.</li>
+            </ul>
+        
+            <p><strong>PATCH request</strong></p>
+            
+            <p>Updates a specific record. Only the relevant doctor can update records </p>
+            <ul>
+                <li>we have to send record_id for updating particular record </li>
+                
+            </ul>
+            <p>Request JSON:</p>
+            <pre><code>
+        {
+            "record_id": 5,
+            "diagnostics": "Hypertension",
+            "observations": "High blood pressure",
+            "treatments": "Lifestyle changes, Medication",
+            "misc": "Follow-up in 2 weeks"
+        }
+            </code></pre>
+            <div class="note"><strong>Note:</strong> 1.The relevant doctor is the one assigned to the patient. </br>
+                The relevant record is one that matches the department and belongs to the patient.</div>
+            <p><strong>DELETE request</strong></p>
+            <p>Deletes a specific record. Only the relevant doctor can delete records that:</p>
+            
+            <p>Request JSON:</p>
+            <pre><code>
+        {
+            "record_id": 5
+        }
+            </code></pre>
+        </div>
+        
+        <div class="description section">
+            <h2>/Departments/</h2>
+            <p><strong>GET request</strong></p>
+            <p>Anyone can access this route.</p>
+            <p> gets all departments </p>
+        </div>
+        
+        <div class="description section">
+            <h2>/department/<code>pk</code>/doctors</h2>
+            <div class="note">NOTE: pk -> will be department's pk </div>
+
+            <p><strong>GET request</strong></p>
+            <p>get all the doctors who is in same department as yours(logged in doctor's).</p>
+        </div>
+        
+        <div class="description section">
+            <h2>/department/<code>pk</code>/patients</h2>
+            <div class="note">NOTE: pk -> will be department's pk </div>
+            <p><strong>GET request</strong></p>
+            <p>get all the Patients who is in same department as yours(logged in doctor's)</p>
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2024 Hospital Project</p>
+    </footer>
+</body>
+</html>
