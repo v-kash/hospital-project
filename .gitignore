@@ -1,1 +1,10 @@
+# Django specific files
+*.log
+local_settings.py
+db.sqlite3
+
+# Virtual environment directories
+venv/
+env/
+.venv/
 .env
